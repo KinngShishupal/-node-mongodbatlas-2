@@ -13,3 +13,4 @@ New in this ----
 8. pagination
 9. limiting (both fields and size limiting)
 10. Aliasing
+11. Created a separate class for sorting filtering limiting and pagination
