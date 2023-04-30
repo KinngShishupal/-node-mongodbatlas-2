@@ -284,6 +284,61 @@ const deleteTour = async (req, res) => {
   }
 };
 
+const getTourStats = async (req, res) => {
+  // Aggregation pipeline
+  try {
+    const stats = await Tour.aggregate([
+      {
+        $match: { ratingsAverage: { $gte: 4.5 } }, // finds tours with ratings average greater tha equal to 4.5
+      },
+      {
+        $group: {
+          // _id: '$difficulty', group by any field
+          // _id: {$toUpper: '$difficulty'}, group by any field with id in upper case
+          _id: null, // here comes the fields name with which want to group, it comes with a dollar sign
+          numTours: { $sum: 1 }, // calculates the sum of Tours adds one for each document
+          numRatings: { $sum: '$ratingsQuantity' }, // calculates the sum of ratings
+          avgRatings: { $avg: '$ratingsAverage' }, // calculates the average of ratings
+          avgPrice: { $avg: '$price' }, // calculates the average of price
+          minPrice: { $min: '$price' }, // calculates the minimum price
+          maxPrice: { $max: '$price' }, // calculates the maximum price
+        },
+      },
+      {
+        $sort: { avgPrice: 1 }, // in ascending order of avg price
+      },
+
+      // {
+      //   $match: {_id: {$ne: 'EASY'}} just to show that we can repeat stages this matching here will apply to its upper stage
+      // }
+    ]);
+
+    // output comes like
+    //   {
+    //     "_id": null,
+    //     "numTours": 8,
+    //     "numRatings": 279,
+    //     "avgRatings": 4.699999999999999,
+    //     "avgPrice": 1274.7777777777778,
+    //     "minPrice": 397,
+    //     "maxPrice": 2997
+    // }
+
+    res.status(200).json({
+      status: 'success',
+      // results: stats.length,
+      data: {
+        stats,
+      },
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: 'fail',
+      message: error,
+    });
+  }
+};
+
 module.exports = {
   getAllTours,
   getTour,
@@ -291,4 +346,5 @@ module.exports = {
   updateTour,
   deleteTour,
   aliasTopTours,
+  getTourStats,
 };
