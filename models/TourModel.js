@@ -65,6 +65,22 @@ tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
 });
 
+// DOCUMENT MIDDLEWARE
+// runs before .save() and .create()
+// next is required only if we have more than one document middleware
+// this below refers to currently processed document
+// tourSchema.pre('save', function (next) {
+//   this.name = this.name.toUpperCase(); // this simple converts the name to uppercase
+//   next();
+// });
+
+// runs after .save() and .create()
+// doc here is currently processed data
+// tourSchema.post('save', function (doc, next) {
+//   this.name = this.name.toUpperCase(); // this simple converts the name to uppercase
+//   next();
+// });
+
 const Tour = mongoose.model('Tour', tourSchema);
 
 module.exports = Tour;
