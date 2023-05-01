@@ -18,3 +18,5 @@ New in this ----
 13. Aggregation pipeline (unwinding and projecting)
 14. Virtual Properties
 15. Document MiddleWare
+16. Query Middleware
+17. Aggregation Middleware

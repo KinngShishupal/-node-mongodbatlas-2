@@ -52,6 +52,12 @@ const tourSchema = new mongoose.Schema(
       default: Date.now(),
     },
     startDates: [Date],
+
+    secretTour: {
+      // this is added to understand query middlewares
+      type: Boolean,
+      default: false,
+    },
   },
   {
     toJSON: { virtuals: true }, // these are schema options
@@ -69,10 +75,10 @@ tourSchema.virtual('durationWeeks').get(function () {
 // runs before .save() and .create()
 // next is required only if we have more than one document middleware
 // this below refers to currently processed document
-// tourSchema.pre('save', function (next) {
-//   this.name = this.name.toUpperCase(); // this simple converts the name to uppercase
-//   next();
-// });
+tourSchema.pre('save', function (next) {
+  this.name = this.name.toUpperCase(); // this simple converts the name to uppercase
+  next();
+});
 
 // runs after .save() and .create()
 // doc here is currently processed data
@@ -81,6 +87,43 @@ tourSchema.virtual('durationWeeks').get(function () {
 //   next();
 // });
 
+// QUERY MIDDLEWARE
+// this middleware runs before or after certain query
+// this here refers to query
+// tourSchema.pre('find', function (next) {
+//   // we dont want to send secret tour to client
+//   this.find({ secretTour: { $ne: true } });
+//   next();
+// });
+
+// tourSchema.pre('findOne', function (next) {
+//   // we dont want to send secret tour to client
+//   this.find({ secretTour: { $ne: true } });
+//   next();
+// });
+
+// above two can be replaced with regular expression
+// all the commands that starts with find(find, findById, findOne etc) will not include secret tour
+tourSchema.pre(/^find/, function (next) {
+  // we dont want to send secret tour to client
+  this.find({ secretTour: { $ne: true } });
+  next();
+});
+
+tourSchema.post(/^find/, function (docs, next) {
+  console.log(docs);
+  next();
+});
+
+// AGGREGATION MIDDLEWARE
+// this here refers to current aggregation object
+tourSchema.pre('aggregate', function (next) {
+  // we dont want to send secret tour to client in case of aggregated queries as well
+  // this line simply adds one more match in the begenning of aggregated queries
+  // try console this.pipeline() for better view
+  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+  next();
+});
 const Tour = mongoose.model('Tour', tourSchema);
 
 module.exports = Tour;
