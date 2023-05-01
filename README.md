@@ -15,3 +15,5 @@ New in this ----
 10. Aliasing
 11. Created a separate class for sorting filtering limiting and pagination
 12. Aggregation pipeline (matching and grouping)
+13. Aggregation pipeline (unwinding and projecting)
+14. Virtual Properties

@@ -62,7 +62,7 @@ if (process.argv[2] === '--import') {
   deleteData();
 }
 
-// console.log(process.argv);
+console.log(process.argv);
 // node dev-data/data/import-dev-data.js
 // we run this file through above command it shows an array with two values, one with node location
 // an other with file location

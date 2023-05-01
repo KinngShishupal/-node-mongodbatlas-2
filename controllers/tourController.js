@@ -305,7 +305,7 @@ const getTourStats = async (req, res) => {
         },
       },
       {
-        $sort: { avgPrice: 1 }, // in ascending order of avg price
+        $sort: { avgPrice: 1 }, // 1 ascending, -1 descending
       },
 
       // {
@@ -326,9 +326,64 @@ const getTourStats = async (req, res) => {
 
     res.status(200).json({
       status: 'success',
-      // results: stats.length,
       data: {
         stats,
+      },
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: 'fail',
+      message: error,
+    });
+  }
+};
+
+const getMonthlyPlan = async (req, res) => {
+  // aggregation pipeline unwinding and projecting
+  try {
+    const year = req.params.year * 1;
+    const plan = await Tour.aggregate([
+      // this gives all the plans that starts and ends in the required year
+      {
+        $unwind: '$startDates', // unwind basically opens up the array
+      },
+
+      {
+        $match: {
+          startDates: {
+            $gte: new Date(`${year}-01-01`),
+            $lte: new Date(`${year}-12-31`),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: { $month: '$startDates' },
+          numTourStarts: { $sum: 1 },
+          tours: { $push: '$name' }, // name of all tours that lies in that particular month
+        },
+      },
+      {
+        $addFields: { month: '$_id' }, // adds another field with the name month with same value as id
+      },
+      {
+        $project: {
+          _id: 0, // 0 means remove 1 means keep or add, this basically removes _id field from reponse
+        },
+      },
+      {
+        $sort: { numTourStarts: -1 },
+      },
+
+      // {
+      //   $limit: 2, to get desired number of ouputs only
+      // },
+    ]);
+    res.status(200).json({
+      status: 'success',
+      length: plan.length,
+      data: {
+        plan,
       },
     });
   } catch (error) {
@@ -347,4 +402,5 @@ module.exports = {
   deleteTour,
   aliasTopTours,
   getTourStats,
+  getMonthlyPlan,
 };
