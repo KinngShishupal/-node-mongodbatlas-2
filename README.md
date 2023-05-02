@@ -20,3 +20,5 @@ New in this ----
 15. Document MiddleWare
 16. Query Middleware
 17. Aggregation Middleware
+18. Built in Data Validators
+19. Custom Validators

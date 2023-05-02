@@ -6,6 +6,8 @@ const tourSchema = new mongoose.Schema(
       required: [true, 'Tour MUst have a Name ...'],
       unique: true,
       trim: true,
+      maxlength: [40, 'Name Should be less than 40'],
+      minlength: [5, 'Name Should be more than 5'],
     },
     price: {
       type: Number,
@@ -20,19 +22,34 @@ const tourSchema = new mongoose.Schema(
       required: [true, 'Tour Must have a groupSize'],
     },
     difficulty: {
-      type: Number,
+      type: String,
       required: [true, 'Tour Must have a difficulty'],
+      enum: {
+        values: ['easy', 'medium', 'difficult'],
+        message: 'Difficulty can be easy, medium, hard',
+      },
     },
     ratingsAverage: {
       type: Number,
       default: 4,
+      min: [1, 'Rating Must be above 1'],
+      max: [5, 'Rating Must be below 5'],
     },
     ratingsQuantity: {
       type: Number,
       default: 0,
     },
 
-    priceDiscount: Number,
+    priceDiscount: {
+      type: Number,
+      validate: {
+        validator: function (value) {
+          // this points to current doc
+          return value < this.price;
+        },
+        message: 'Price Should be greater than price discount ({VALUE})', // VALUE is same as value in function
+      },
+    },
     summary: {
       type: String,
       trim: true, // it works for string only
