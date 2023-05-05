@@ -22,3 +22,5 @@ New in this ----
 17. Aggregation Middleware
 18. Built in Data Validators
 19. Custom Validators
+20. Handled Routes handling (404)
+21. Error Handling through separate class and controllers
