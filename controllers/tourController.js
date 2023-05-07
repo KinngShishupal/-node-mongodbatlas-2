@@ -170,6 +170,7 @@ With Class
 
 const Tour = require('../models/TourModel');
 const APIFeatures = require('../utils/apiFeatures');
+const AppError = require('../utils/appError');
 
 const aliasTopTours = async (req, res, next) => {
   // here well modify query for best five budget tours
@@ -213,10 +214,13 @@ const getAllTours = async (req, res) => {
   }
 };
 
-const getTour = async (req, res) => {
+const getTour = async (req, res, next) => {
   try {
     const tour = await Tour.findById(req.params.id);
     // Tour.findOne({_id:req.params.id}) same result as above
+    if (!tour) {
+      return next(new AppError('No Tour Found With this id', 404));
+    }
     res.status(200).json({
       status: 'success',
       data: {
@@ -248,12 +252,15 @@ const createTour = async (req, res) => {
   }
 };
 
-const updateTour = async (req, res) => {
+const updateTour = async (req, res, next) => {
   try {
     const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,
     });
+    if (!tour) {
+      return next(new AppError('No Tour Found With this id', 404));
+    }
     res.status(201).json({
       status: 'success',
       data: {
@@ -267,9 +274,12 @@ const updateTour = async (req, res) => {
     });
   }
 };
-const deleteTour = async (req, res) => {
+const deleteTour = async (req, res, next) => {
   try {
     const tour = await Tour.findByIdAndDelete(req.params.id);
+    if (!tour) {
+      return next(new AppError('No Tour Found With this id', 404));
+    }
     res.status(204).json({
       status: 'success',
       data: {
